@@ -15,7 +15,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
             .formLogin(formLogin -> formLogin
                 .defaultSuccessUrl("/")
