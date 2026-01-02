@@ -24,10 +24,10 @@ public class FlashCart {
     @Column(name = "Definition", columnDefinition = "NVARCHAR(3000)", length = 3000, nullable = false)
     String definition;
 
-    @Column(name = "Note", columnDefinition = "NVARCHAR(3000)", length = 3000, nullable = false)
+    @Column(name = "Note", columnDefinition = "NVARCHAR(3000)", length = 3000)
     String note;
 
-    @Column(name = "Example", columnDefinition = "NVARCHAR(3000)", length = 3000, nullable = false)
+    @Column(name = "Example", columnDefinition = "NVARCHAR(3000)", length = 3000)
     String example;
 
     @ManyToOne

@@ -30,7 +30,7 @@ public class FlashCartSet {
     @Column(name = "ModifiedDate", columnDefinition = "DATETIME", nullable = false)
     LocalDateTime modifiedDate;
 
-    @Column(name = "Description", columnDefinition = "NVARCHAR(3000)", length = 3000, nullable = false)
+    @Column(name = "Description", columnDefinition = "NVARCHAR(3000)", length = 3000)
     String description;
 
     @Column(name = "IsPublic", columnDefinition = "BIT", nullable = false)
