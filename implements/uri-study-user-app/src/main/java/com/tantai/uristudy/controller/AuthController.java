@@ -1,8 +1,11 @@
 package com.tantai.uristudy.controller;
 
 import com.tantai.uristudy.dto.request.EmailVerificationRequest;
+import com.tantai.uristudy.dto.request.TokenVerificationRequest;
 import com.tantai.uristudy.exception.EmailAlreadyExistsException;
+import com.tantai.uristudy.exception.InvalidTokenException;
 import com.tantai.uristudy.service.AuthService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -20,7 +24,8 @@ public class AuthController {
     AuthService authService;
 
     @GetMapping("/verifyEmail")
-    public String showEmailVerificationForm() {
+    public String showEmailVerificationForm(Model model) {
+        model.addAttribute("emailVerificationRequest", new EmailVerificationRequest());
         return "email-verification-form";
     }
 
@@ -34,7 +39,7 @@ public class AuthController {
         }
 
         try {
-            authService.sendEmailVerification(emailVerificationRequest.email());
+            authService.sendEmailVerification(emailVerificationRequest);
         }
         catch (EmailAlreadyExistsException e) {
             model.addAttribute("message", e.getMessage());
@@ -49,8 +54,13 @@ public class AuthController {
         return "email-verification-form";
     }
 
-//    @GetMapping("/verifyToken")
-//    public String verifyToken(@RequestParam("id") String id, @RequestParam("token") String token) {
-//
-//    }
+    @GetMapping("/verifyToken")
+    public String verifyToken(
+            @Valid @ModelAttribute("tokenVerificationRequest")TokenVerificationRequest tokenVerificationRequest,
+            HttpSession httpSession
+    ) {
+        String email = authService.verifyToken(tokenVerificationRequest);
+        httpSession.setAttribute("email", email);
+        return "redirect:/user/register";
+    }
 }

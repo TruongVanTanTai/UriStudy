@@ -33,8 +33,8 @@ public class User {
     @Column(name = "DateOfBirth", columnDefinition = "DATE", nullable = false)
     LocalDate dateOfBirth;
 
-    @Column(name = "Gender", columnDefinition = "BIT", nullable = false)
-    Boolean gender;
+    @Column(name = "IsMale", columnDefinition = "BIT", nullable = false)
+    Boolean isMale;
 
     @Column(name = "Address", columnDefinition = "NVARCHAR(100)", length = 100, nullable = false)
     String address;
