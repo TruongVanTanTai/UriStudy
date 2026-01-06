@@ -3,7 +3,6 @@ package com.tantai.uristudy.controller;
 import com.tantai.uristudy.dto.request.EmailVerificationRequest;
 import com.tantai.uristudy.dto.request.TokenVerificationRequest;
 import com.tantai.uristudy.exception.EmailAlreadyExistsException;
-import com.tantai.uristudy.exception.InvalidTokenException;
 import com.tantai.uristudy.service.AuthService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)

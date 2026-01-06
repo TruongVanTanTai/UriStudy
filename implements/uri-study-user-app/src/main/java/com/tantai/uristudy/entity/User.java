@@ -46,10 +46,10 @@ public class User {
     String password;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<FlashCartSet> flashCartSets;
+    List<FlashCardSet> flashCardSets;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<FlashCartSetReview> flashCartSetReviews;
+    List<FlashCardSetReview> flashCardSetReviews;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<ExamOfUser> examOfUsers;

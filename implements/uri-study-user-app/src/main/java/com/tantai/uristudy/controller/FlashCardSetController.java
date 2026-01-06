@@ -1,0 +1,86 @@
+package com.tantai.uristudy.controller;
+
+import com.tantai.uristudy.dto.request.FlashCardSetCreationRequest;
+import com.tantai.uristudy.entity.FlashCardSet;
+import com.tantai.uristudy.security.CustomUserDetails;
+import com.tantai.uristudy.service.FlashCardSetService;
+import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+@Controller
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
+public class FlashCardSetController {
+    FlashCardSetService flashCardSetService;
+
+    @GetMapping("/flash-card-sets")
+    public String showFlashCardSets(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestParam(name = "searchKey", required = false) String searchKey,
+            @RequestParam(name = "mode", defaultValue = "all") String mode,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            Model model
+    ) {
+        Long userId = customUserDetails.getUser().getId();
+        Page<FlashCardSet> flashCardSets;
+        if (searchKey != null) {
+            flashCardSets = flashCardSetService.getFlashCardSetsByIdAndByName(userId, searchKey, page, 6);
+            model.addAttribute("searchKey", searchKey);
+        }
+        else if (mode.equals("all")) {
+            flashCardSets = flashCardSetService.getFlashCardSetsByUserId(userId, page, 6);
+        }
+        else if (mode.equals("vocabulary")) {
+            flashCardSets = flashCardSetService.getFlashCardSetsByUserIdAndType(userId, false, page, 6);
+        }
+        else if (mode.equals("grammar")) {
+            flashCardSets = flashCardSetService.getFlashCardSetsByUserIdAndType(userId, true, page, 6);
+        }
+        else {
+            flashCardSets = flashCardSetService.getFavoriteFlashCardSets(userId, page, 6);
+        }
+
+        model.addAttribute("mode", mode);
+        model.addAttribute("flashCardSets", flashCardSets.getContent());
+        model.addAttribute("page", flashCardSets.getNumber() + 1);
+        model.addAttribute("numberOfPages", flashCardSets.getTotalPages());
+
+        return "flash-card-sets";
+    }
+
+    @GetMapping("flash-card-set/create")
+    public String showCreateFlashCardSetForm(Model model) {
+        model.addAttribute("flashCardSetCreationRequest", new FlashCardSetCreationRequest());
+        return "flash-card-set-creation-form";
+    }
+
+
+    @PostMapping("/flash-card-set/do-create")
+    public String createFlashCardSetCreation(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Valid @ModelAttribute("flashCardSetCreationRequest") FlashCardSetCreationRequest flashCardSetCreationRequest,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (bindingResult.hasErrors()) {
+            System.out.println(bindingResult.getAllErrors());
+            return "flash-card-set-creation-form";
+        }
+
+        flashCardSetService.createFlashCardSet(customUserDetails.getUser().getId(), flashCardSetCreationRequest);
+        redirectAttributes.addFlashAttribute("message", "Thêm mới bộ flash card thành công");
+        return "redirect:/flash-card-sets";
+    }
+}

@@ -364,7 +364,7 @@
 									"top": 429,
 									"width": 286.4326171875,
 									"height": 13,
-									"text": "FlashCartSet"
+									"text": "FlashCardSet"
 								},
 								{
 									"_type": "ERDColumnCompartmentView",
@@ -474,6 +474,22 @@
 										},
 										{
 											"_type": "ERDColumnView",
+											"_id": "AAAAAAGbk3mEOzgGclM=",
+											"_parent": {
+												"$ref": "AAAAAAGbasE5dXFkm/I="
+											},
+											"model": {
+												"$ref": "AAAAAAGbk3mELzgDFo8="
+											},
+											"font": "Arial;13;0",
+											"parentStyle": true,
+											"left": 518,
+											"top": 542,
+											"width": 276.4326171875,
+											"height": 13
+										},
+										{
+											"_type": "ERDColumnView",
 											"_id": "AAAAAAGbasE5dXFqCQo=",
 											"_parent": {
 												"$ref": "AAAAAAGbasE5dXFkm/I="
@@ -484,7 +500,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 518,
-											"top": 542,
+											"top": 557,
 											"width": 276.4326171875,
 											"height": 13
 										}
@@ -494,7 +510,7 @@
 									"left": 513,
 									"top": 447,
 									"width": 286.4326171875,
-									"height": 113
+									"height": 128
 								}
 							],
 							"font": "Arial;13;0",
@@ -502,7 +518,7 @@
 							"left": 513,
 							"top": 424,
 							"width": 286.4326171875,
-							"height": 136,
+							"height": 151,
 							"nameLabel": {
 								"$ref": "AAAAAAGbasE5dXFjmZI="
 							},
@@ -532,7 +548,7 @@
 									"top": 349,
 									"width": 272,
 									"height": 13,
-									"text": "FlashCart"
+									"text": "FlashCard"
 								},
 								{
 									"_type": "ERDColumnCompartmentView",
@@ -769,7 +785,7 @@
 									"top": 197,
 									"width": 287,
 									"height": 13,
-									"text": "FlashCartSetReview"
+									"text": "FlashCardSetReview"
 								},
 								{
 									"_type": "ERDColumnCompartmentView",
@@ -1073,7 +1089,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": false,
 									"left": 472,
-									"top": 381,
+									"top": 389,
 									"height": 13,
 									"alpha": 1.5707963267948966,
 									"distance": 15,
@@ -1109,7 +1125,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": false,
 									"left": 487,
-									"top": 531,
+									"top": 547,
 									"height": 13,
 									"alpha": -0.5235987755982988,
 									"distance": 30,
@@ -1127,7 +1143,7 @@
 								"$ref": "AAAAAAGbasE5dXE8K5I="
 							},
 							"lineStyle": 2,
-							"points": "437:224;457:224;457:552;513:552",
+							"points": "437:224;457:224;457:568;513:568",
 							"nameLabel": {
 								"$ref": "AAAAAAGbasE5dXGO5h8="
 							},
@@ -2830,7 +2846,7 @@
 								"$ref": "AAAAAAGbasE5dXFiKVE="
 							},
 							"lineStyle": 1,
-							"points": "800:519;871:532"
+							"points": "800:522;871:534"
 						},
 						{
 							"_type": "UMLNoteView",
@@ -3161,7 +3177,7 @@
 					"_parent": {
 						"$ref": "AAAAAAGbasE5dHE6X/g="
 					},
-					"name": "FlashCartSet",
+					"name": "FlashCardSet",
 					"ownedElements": [
 						{
 							"_type": "ERDRelationship",
@@ -3284,6 +3300,16 @@
 						},
 						{
 							"_type": "ERDColumn",
+							"_id": "AAAAAAGbk3mELzgDFo8=",
+							"_parent": {
+								"$ref": "AAAAAAGbasE5dXIQ130="
+							},
+							"name": "Image",
+							"type": "NVARCHAR",
+							"length": "1000"
+						},
+						{
+							"_type": "ERDColumn",
 							"_id": "AAAAAAGbasE5dXIcRl4=",
 							"_parent": {
 								"$ref": "AAAAAAGbasE5dXIQ130="
@@ -3301,7 +3327,7 @@
 					"_parent": {
 						"$ref": "AAAAAAGbasE5dHE6X/g="
 					},
-					"name": "FlashCart",
+					"name": "FlashCard",
 					"columns": [
 						{
 							"_type": "ERDColumn",
@@ -3360,7 +3386,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGbasE5dXIev4Q="
 							},
-							"name": "FlashCartSetId",
+							"name": "FlashCardSetId",
 							"type": "BIGINT",
 							"length": 0,
 							"foreignKey": true
@@ -3373,7 +3399,7 @@
 					"_parent": {
 						"$ref": "AAAAAAGbasE5dHE6X/g="
 					},
-					"name": "FlashCartSetReview",
+					"name": "FlashCardSetReview",
 					"columns": [
 						{
 							"_type": "ERDColumn",
@@ -3424,7 +3450,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGbasE5dXIl8/U="
 							},
-							"name": "FlashCartSetId",
+							"name": "FlashCardSetId",
 							"type": "BIGINT",
 							"length": 0,
 							"foreignKey": true

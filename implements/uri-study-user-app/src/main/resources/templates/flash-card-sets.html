@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bộ flashcard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="d-flex">
+        <div th:replace="~{fragments/sidebar :: sidebar('flashcardsets')}"></div>
+        <div style="flex: 1" class="d-flex flex-column pt-3 px-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="btn-group">
+                    <a th:href="'/flash-card-sets?mode=all'" th:class="'btn btn-primary ' + ${mode == 'all' ? 'active' : ''}">Tất cả bộ flash cart</a>
+                    <a th:href="'/flash-card-sets?mode=vocabulary'" th:class="'btn btn-primary ' + ${mode == 'vocabulary' ? 'active' : ''}">Bộ flash card từ vựng</a>
+                    <a th:href="'/flash-card-sets?mode=grammar'" th:class="'btn btn-primary ' + ${mode == 'grammar' ? 'active' : ''}">Bộ flash cart ngữ pháp</a>
+                    <a th:href="'/flash-card-sets?mode=favorite'" th:class="'btn btn-primary ' + ${mode == 'favorite' ? 'active' : ''}">Bộ flash cart yêu thích</a>
+                </div>
+                <a th:href="@{flash-card-set/create}">Thêm mới</a>
+                <form class="d-flex" th:action="@{/flash-card-sets}" method="get">
+                    <input style="width: 300px;" class="form-control me-2" type="text" name="searchKey" th:value="${searchKey}" placeholder="Nhập tên bộ flash card...">
+                    <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
+                </form>
+            </div>
+            <div style="flex: 1" class="d-flex flex-column justify-content-between" th:if="${numberOfPages > 0}">
+                <div class="d-flex flex-wrap gap-3">
+                    <div th:each="flashCardSet : ${flashCardSets}" th:object="${flashCardSet}" class="card" style="width: 18rem;">
+                        <img th:if="*{image == null}" style="height: 200px; object-fit: cover" th:src="@{'/images/default-flash-card-set-image.png'}" class="card-img-top" alt="">
+                        <img th:if="*{image != null}" style="height: 200px; object-fit: cover" th:src="@{*{image}}" class="card-img-top" alt="">
+                        <div class="card-body d-flex flex-column">
+                            <h5 th:text="*{name}" class="card-title"></h5>
+                            <p th:text="*{description}" class="card-text"></p>
+                            <p style="color: gray; font-size: 13px" class="card-text mt-auto">
+                                <i class="bi bi-clock"></i>
+                                <span th:text="'Ngày sửa: ' + *{#temporals.format(modifiedDate, 'dd-MM-yyyy HH:mm:ss')}"></span>
+                            </p>
+                            <a href="#" class="btn btn-primary">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+                <nav>
+                    <ul class="pagination">
+                        <li th:each="i : ${#numbers.sequence(1, page)}" th:class="'page-item ' + ${i == page ? 'active' : ''}">
+                            <a class="page-link" th:href="@{'/flash-card-sets?' + ${searchKey != null ? 'searchKey=' + searchKey : 'mode=' + mode} + '&page=' + ${i}}" th:text="${i}"></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div th:if="${numberOfPages == 0}">
+                <span>Không tồn tại bộ flash card nào</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
