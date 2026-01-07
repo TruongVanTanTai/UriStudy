@@ -1,6 +1,7 @@
 package com.tantai.uristudy.controller;
 
 import com.tantai.uristudy.dto.request.FlashCardSetCreationRequest;
+import com.tantai.uristudy.dto.request.FlashCardSetEditRequest;
 import com.tantai.uristudy.entity.FlashCardSet;
 import com.tantai.uristudy.security.CustomUserDetails;
 import com.tantai.uristudy.service.FlashCardSetService;
@@ -13,10 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -61,26 +59,54 @@ public class FlashCardSetController {
     }
 
     @GetMapping("flash-card-set/create")
-    public String showCreateFlashCardSetForm(Model model) {
+    public String showFlashCardSetCreationForm(Model model) {
         model.addAttribute("flashCardSetCreationRequest", new FlashCardSetCreationRequest());
         return "flash-card-set-creation-form";
     }
 
 
     @PostMapping("/flash-card-set/do-create")
-    public String createFlashCardSetCreation(
+    public String createFlashCardSet(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Valid @ModelAttribute("flashCardSetCreationRequest") FlashCardSetCreationRequest flashCardSetCreationRequest,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes
     ) {
         if (bindingResult.hasErrors()) {
-            System.out.println(bindingResult.getAllErrors());
             return "flash-card-set-creation-form";
         }
 
         flashCardSetService.createFlashCardSet(customUserDetails.getUser().getId(), flashCardSetCreationRequest);
         redirectAttributes.addFlashAttribute("message", "Thêm mới bộ flash card thành công");
+        return "redirect:/flash-card-sets";
+    }
+
+    @GetMapping("/flash-card-set/edit/{id}")
+    public String showFlashCardSetEditForm(@PathVariable("id") Long id, Model model) {
+        model.addAttribute("flashCardSetEditRequest", flashCardSetService.getFlashCardById(id));
+        return "flash-card-set-edit-form";
+    }
+
+    @PostMapping("/flash-card-set/do-edit")
+    public String editFlashCardSet(
+            @Valid @ModelAttribute("flashCardSetEditRequest")FlashCardSetEditRequest flashCardSetEditRequest,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (bindingResult.hasErrors()) {
+            return "flash-card-set-edit-form";
+        }
+
+        flashCardSetService.editFashCartSet(flashCardSetEditRequest);
+        redirectAttributes.addFlashAttribute("message", "Cập nhật bộ flash card thành công");
+        return "redirect:/flash-card-sets";
+    }
+
+    @GetMapping("/flash-card-set/delete/{id}")
+    public String deleteFlashCardSet(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        FlashCardSet flashCardSet = flashCardSetService.getFlashCardById(id);
+        flashCardSetService.deleteFlashCardSet(flashCardSet);
+        redirectAttributes.addFlashAttribute("message", "Xóa bộ flash card thành công");
         return "redirect:/flash-card-sets";
     }
 }

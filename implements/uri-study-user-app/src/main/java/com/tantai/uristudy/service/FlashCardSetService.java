@@ -1,8 +1,10 @@
 package com.tantai.uristudy.service;
 
 import com.tantai.uristudy.dto.request.FlashCardSetCreationRequest;
+import com.tantai.uristudy.dto.request.FlashCardSetEditRequest;
 import com.tantai.uristudy.entity.FlashCardSet;
 import com.tantai.uristudy.entity.User;
+import com.tantai.uristudy.exception.FlashCardNotFoundException;
 import com.tantai.uristudy.exception.ImageCreationException;
 import com.tantai.uristudy.exception.UserNotFoundException;
 import com.tantai.uristudy.infrastructure.ImageCreator;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -30,6 +33,7 @@ public class FlashCardSetService {
     UserRepository userRepository;
     ImageCreator imageCreator;
 
+    @PreAuthorize("hasAuthority('USER')")
     public Page<FlashCardSet> getFlashCardSetsByUserId(Long userId, int page, int size) {
         if (page <= 0) page = 1;
         if (size <= 0)  size = 6;
@@ -38,6 +42,7 @@ public class FlashCardSetService {
         return flashCardSetRepository.findByUserId(userId, pageable);
     }
 
+    @PreAuthorize("hasAuthority('USER')")
     public Page<FlashCardSet> getFlashCardSetsByUserIdAndType(Long userId, boolean type, int page, int size) {
         if (page <= 0) page = 1;
         if (size <= 0) size = 6;
@@ -46,6 +51,7 @@ public class FlashCardSetService {
         return flashCardSetRepository.findByUserIdAndType(userId, type, pageable);
     }
 
+    @PreAuthorize("hasAuthority('USER')")
     public Page<FlashCardSet> getFlashCardSetsByIdAndByName(Long userId, String name, int page, int size) {
         if (page <= 0) page = 1;
         if (size <= 0) size = 6;
@@ -54,6 +60,7 @@ public class FlashCardSetService {
         return flashCardSetRepository.findByUserIdAndNameContaining(userId, name, pageable);
     }
 
+    @PreAuthorize("hasAuthority('USER')")
     public Page<FlashCardSet> getFavoriteFlashCardSets(Long userId, int page, int size) {
         if (page <= 0) page = 1;
         if (size <= 0) size = 6;
@@ -62,6 +69,7 @@ public class FlashCardSetService {
         return flashCardSetRepository.findByUserIdAndIsFavoriteTrue(userId, pageable);
     }
 
+    @PreAuthorize("hasAuthority('USER')")
     public FlashCardSet createFlashCardSet(Long userId, FlashCardSetCreationRequest flashCardSetCreationRequest) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Không tìm thấy người dùng có id:" + userId));
 
@@ -82,5 +90,39 @@ public class FlashCardSetService {
         flashCardSet.setUser(user);
 
         return flashCardSetRepository.save(flashCardSet);
+    }
+
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public FlashCardSet getFlashCardById(Long id) {
+        return flashCardSetRepository.findById(id).orElseThrow(() -> new FlashCardNotFoundException("Không tìm thấy bộ flash card có id: " + id));
+    }
+
+    @PreAuthorize("hasAuthority('USER') and authentication.principal.user.id == #flashCardSetEditRequest.userId")
+    public FlashCardSet editFashCartSet(FlashCardSetEditRequest flashCardSetEditRequest) {
+        FlashCardSet flashCardSet = flashCardSetRepository.findById(flashCardSetEditRequest.getId())
+                .orElseThrow(() -> new FlashCardNotFoundException("Không tìm thấy bộ flash card có id: " + flashCardSetEditRequest.getId()));
+
+        flashCardSet.setName(flashCardSetEditRequest.getName());
+        flashCardSet.setType(flashCardSetEditRequest.getType());
+        flashCardSet.setModifiedDate(LocalDateTime.now());
+        flashCardSet.setDescription(flashCardSetEditRequest.getDescription());
+        flashCardSet.setIsPublic(flashCardSetEditRequest.getIsPublic());
+
+        if (!flashCardSetEditRequest.getImage().isEmpty()) {
+            try {
+                String imagePath = imageCreator.createImage(flashCardSetEditRequest.getImage(), "flash-card-set-images");
+                flashCardSet.setImage(imagePath);
+            }
+            catch (IOException e) {
+                throw new ImageCreationException("Tạo ảnh thất bại");
+            }
+        }
+
+        return flashCardSetRepository.save(flashCardSet);
+    }
+
+    @PreAuthorize("hasAuthority('USER') and authentication.principal.user.id == #flashCardSet.user.id")
+    public void deleteFlashCardSet(FlashCardSet flashCardSet) {
+        flashCardSetRepository.delete(flashCardSet);
     }
 }
