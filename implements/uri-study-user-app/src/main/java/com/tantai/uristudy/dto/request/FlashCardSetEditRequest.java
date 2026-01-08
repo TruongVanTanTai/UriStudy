@@ -1,5 +1,6 @@
 package com.tantai.uristudy.dto.request;
 
+import com.tantai.uristudy.entity.User;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Builder
 public class FlashCardSetEditRequest {
     @NotNull(message = "Id bộ flash card là bắt buộc")
-    @Min(0)
+    @Min(value = 0, message = "Id bộ flash card phải từ 0 trở lên")
     Long id;
 
     @NotBlank(message = "Tên bộ flash card là bắt buộc")
@@ -33,4 +34,7 @@ public class FlashCardSetEditRequest {
     Boolean isPublic;
 
     MultipartFile image;
+
+    @NotNull(message = "Người dùng là bắt buộc")
+    User user;
 }

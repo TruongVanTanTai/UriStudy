@@ -83,13 +83,13 @@ public class FlashCardSetController {
 
     @GetMapping("/flash-card-set/edit/{id}")
     public String showFlashCardSetEditForm(@PathVariable("id") Long id, Model model) {
-        model.addAttribute("flashCardSetEditRequest", flashCardSetService.getFlashCardById(id));
+        model.addAttribute("flashCardSetEditRequest", flashCardSetService.getFlashCardSetById(id));
         return "flash-card-set-edit-form";
     }
 
     @PostMapping("/flash-card-set/do-edit")
     public String editFlashCardSet(
-            @Valid @ModelAttribute("flashCardSetEditRequest")FlashCardSetEditRequest flashCardSetEditRequest,
+            @Valid @ModelAttribute("flashCardSetEditRequest") FlashCardSetEditRequest flashCardSetEditRequest,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes
     ) {
@@ -104,7 +104,7 @@ public class FlashCardSetController {
 
     @GetMapping("/flash-card-set/delete/{id}")
     public String deleteFlashCardSet(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
-        FlashCardSet flashCardSet = flashCardSetService.getFlashCardById(id);
+        FlashCardSet flashCardSet = flashCardSetService.getFlashCardSetById(id);
         flashCardSetService.deleteFlashCardSet(flashCardSet);
         redirectAttributes.addFlashAttribute("message", "Xóa bộ flash card thành công");
         return "redirect:/flash-card-sets";

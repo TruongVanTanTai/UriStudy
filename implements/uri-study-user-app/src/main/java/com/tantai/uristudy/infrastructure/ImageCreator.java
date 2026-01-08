@@ -22,9 +22,8 @@ public class ImageCreator {
         String newFileName = UUID.randomUUID().toString() + "_" + fileName;
 
         Path filePath = uploadPath.resolve(newFileName);
-        System.out.println(filePath);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        return "localhost:8386/upload-files/" + uploadFolder + "/" + newFileName;
+        return "http://localhost:8386/upload-files/" + uploadFolder + "/" + newFileName;
     }
 }
