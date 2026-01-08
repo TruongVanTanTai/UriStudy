@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cập nhật thông tin cá nhân</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+</head>
+<body>
+    <div class="d-flex">
+        <div th:replace="~{/fragments/sidebar :: sidebar('')}"></div>
+        <div>
+            <form th:action="@{/user/do-edit}" method="post" th:object="${userEditRequest}">
+                <div>
+                    <label th:for="name">Họ và tên</label>
+                    <input th:field="*{name}">
+                    <span th:errors="*{name}"></span>
+                </div>
+                <div>
+                    <label th:for="email">Email</label>
+                    <input th:field="*{email}" readonly>
+                    <span th:errors="*{email}"></span>
+                </div>
+                <div>
+                    <label th:for="phoneNumber">Số điện thoại</label>
+                    <input th:field="*{phoneNumber}">
+                    <span th:errors="*{phoneNumber}"></span>
+                </div>
+                <div>
+                    <label for="dateOfBirth">Ngày sinh</label>
+                    <input type="date" id="dateOfBirth" name="dateOfBirth" th:value="*{#temporals.format(dateOfBirth, 'yyyy-MM-dd')}">
+                    <span th:errors="*{dateOfBirth}"></span>
+                </div>
+                <div>
+                    <label>Giới tính</label>
+                    <div>
+                        <input type="radio" name="isMale" id="male" th:field="*{isMale}" value="true" autocomplete="off" required>
+                        <label for="male"><i class="fa-solid fa-mars"></i> Nam</label>
+
+                        <input type="radio" name="isMale" id="female" th:field="*{isMale}" value="false" autocomplete="off" required>
+                        <label for="female"><i class="fa-solid fa-venus"></i> Nữ</label>
+                    </div>
+                    <span th:errors="*{isMale}"></span>
+                </div>
+                <div>
+                    <label th:for="address">Địa chỉ</label>
+                    <input th:field="*{address}">
+                    <span th:errors="*{address}"></span>
+                </div>
+                <div>
+                    <label th:for="username">Tên đăng nhập</label>
+                    <input th:field="*{username}" readonly>
+                    <span th:errors="*{username}"></span>
+                </div>
+                <div>
+                    <button type="submit">Xác nhận</button>
+                    <a th:href="@{/user/profile}">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

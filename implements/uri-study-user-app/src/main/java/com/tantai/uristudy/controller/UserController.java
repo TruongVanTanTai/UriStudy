@@ -1,15 +1,18 @@
 package com.tantai.uristudy.controller;
 
 import com.tantai.uristudy.dto.request.UserCreationRequest;
+import com.tantai.uristudy.dto.request.UserEditRequest;
 import com.tantai.uristudy.exception.PasswordMismatchException;
 import com.tantai.uristudy.exception.UserCreationException;
 import com.tantai.uristudy.exception.UsernameAlreadyExistsException;
+import com.tantai.uristudy.security.CustomUserDetails;
 import com.tantai.uristudy.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,7 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequiredArgsConstructor
 @RequestMapping("/user")
 public class UserController {
-    private final UserService userService;
+    UserService userService;
 
     @GetMapping("/register")
     public String showRegisterForm(Model model, HttpSession httpSession) {
@@ -63,5 +66,39 @@ public class UserController {
         }
         redirectAttributes.addFlashAttribute("message", "Đăng ký tài khoản thành công");
         return "redirect:/login";
+    }
+
+    @GetMapping("/profile")
+    public String showProfileForm(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            Model model
+    ) {
+        model.addAttribute("user", userService.getUserById(customUserDetails.getUser().getId()));
+        return "user-profile-form";
+    }
+
+    @GetMapping("/edit")
+    public String showEditForm(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            Model model
+    ) {
+        model.addAttribute("userEditRequest", userService.getUserById(customUserDetails.getUser().getId()));
+        return "user-edit-form";
+    }
+
+    @PostMapping("/do-edit")
+    public String editUser(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Valid @ModelAttribute("userEditRequest") UserEditRequest userEditRequest,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (bindingResult.hasErrors()) {
+            return "user-edit-form";
+        }
+
+        userService.updateUser(customUserDetails.getUser().getId(), userEditRequest);
+        redirectAttributes.addFlashAttribute("message", "Đã cập nhật thông tin cá nhân thành công");
+        return "redirect:/user/profile";
     }
 }

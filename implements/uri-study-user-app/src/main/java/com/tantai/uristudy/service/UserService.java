@@ -1,9 +1,11 @@
 package com.tantai.uristudy.service;
 
 import com.tantai.uristudy.dto.request.UserCreationRequest;
+import com.tantai.uristudy.dto.request.UserEditRequest;
 import com.tantai.uristudy.entity.FlashCardSet;
 import com.tantai.uristudy.entity.User;
 import com.tantai.uristudy.exception.PasswordMismatchException;
+import com.tantai.uristudy.exception.UserNotFoundException;
 import com.tantai.uristudy.exception.UsernameAlreadyExistsException;
 import com.tantai.uristudy.mapper.UserMapper;
 import com.tantai.uristudy.repository.FlashCardSetRepository;
@@ -11,6 +13,7 @@ import com.tantai.uristudy.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,5 +65,25 @@ public class UserService {
         flashCardSetRepository.save(FavoriteGrammarfFashCardSet);
 
         return user;
+    }
+
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN') and authentication.principal.user.id == #id")
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Không tồn tại người dùng có id: " + id));
+    }
+
+    @PreAuthorize("hasAuthority('USER') and authentication.principal.user.id == #id")
+    public User updateUser(Long id, UserEditRequest userEditRequest) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Không tồn tại người dùng có id: " + id));
+
+        user.setName(userEditRequest.getName());
+        user.setPhoneNumber(userEditRequest.getPhoneNumber());
+        user.setDateOfBirth(userEditRequest.getDateOfBirth());
+        user.setIsMale(userEditRequest.getIsMale());
+        user.setAddress(userEditRequest.getAddress());
+
+        return userRepository.save(user);
     }
 }

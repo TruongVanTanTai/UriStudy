@@ -94,7 +94,7 @@ public class FlashCardSetService {
         return flashCardSetRepository.save(flashCardSet);
     }
 
-    @PostAuthorize("hasAnyAuthority('USER') and authentication.principal.user.id == returnObject.user.id")
+    @PostAuthorize("hasAuthority('USER') and authentication.principal.user.id == returnObject.user.id")
     public FlashCardSet getFlashCardSetById(Long id) {
         return flashCardSetRepository.findById(id)
                 .orElseThrow(() -> new FlashCardSetNotFoundException("Không tìm thấy bộ flash card có id: " + id));
