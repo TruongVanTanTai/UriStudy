@@ -4,6 +4,7 @@ import com.tantai.uristudy.dto.request.FlashCardCreationRequest;
 import com.tantai.uristudy.dto.request.FlashCardEditRequest;
 import com.tantai.uristudy.entity.FlashCard;
 import com.tantai.uristudy.repository.FlashCardRepository;
+import com.tantai.uristudy.security.CustomUserDetails;
 import com.tantai.uristudy.service.FlashCardService;
 import com.tantai.uristudy.service.FlashCardSetService;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -107,11 +109,23 @@ public class FlashCardController {
     public String deleteFlashCard(
             @PathVariable("flashCardSetId") Long flashCardSetId,
             @PathVariable("flashCardId") Long flashCardId,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes
+    ) {
         FlashCard flashCard = flashCardService.getFlashCardById(flashCardId);
         flashCardService.deleteFlashCardById(flashCard);
         redirectAttributes.addFlashAttribute("message", "Đã xóa flash card thành cồng");
         return "redirect:/flash-card-set/" + flashCardSetId + "/flash-cards";
     }
 
+    @GetMapping("/flash-card-set/{flashCardSetId}/flash-card/add-to-favorite/{flashCardId}")
+    public String addToFavoriteFlashCard(
+            @PathVariable("flashCardSetId") Long flashCardSetId,
+            @PathVariable("flashCardId") Long flashCardId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            RedirectAttributes redirectAttributes
+    ) {
+        flashCardService.addToFavoriteFlashCardSet(customUserDetails.getUser().getId(), flashCardId);
+        redirectAttributes.addFlashAttribute("message", "Đã thêm vào bộ flash cart yêu thích thành công");
+        return "redirect:/flash-card-set/" + flashCardSetId + "/flash-cards";
+    }
 }

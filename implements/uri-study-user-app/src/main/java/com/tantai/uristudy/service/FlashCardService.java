@@ -90,4 +90,32 @@ public class FlashCardService {
     public void deleteFlashCardById(FlashCard flashCard) {
         flashCardRepository.deleteByIdAndFlashCardSetId(flashCard.getId(), flashCard.getFlashCardSet().getId());
     }
+
+    @PreAuthorize("hasAuthority('USER') and authentication.principal.user.id == #userId")
+    @Transactional
+    public void addToFavoriteFlashCardSet(Long userId, Long flashCardId) {
+        FlashCard flashCard = flashCardRepository.findById(flashCardId)
+                .orElseThrow(() -> new FlashCardNotFoundException("Không tồn tại flash card có id: " + flashCardId));
+
+        if (flashCard.getFlashCardSet().getUser().getId() == userId || flashCard.getFlashCardSet().getIsPublic()) {
+            FlashCard flashCardToAdd = FlashCard.builder()
+                    .term(flashCard.getTerm())
+                    .definition(flashCard.getDefinition())
+                    .note(flashCard.getNote())
+                    .example(flashCard.getExample())
+                    .build();
+
+            FlashCardSet flashCardSet;
+            if (flashCard.getFlashCardSet().getType()) {
+                flashCardSet = flashCardSetRepository.findByUserIdAndIsFavoriteTrueAndTypeTrue(userId);
+            }
+            else {
+                flashCardSet = flashCardSetRepository.findByUserIdAndIsFavoriteTrueAndTypeFalse(userId);
+            }
+            flashCardSet.setModifiedDate(LocalDateTime.now());
+            flashCardSetRepository.save(flashCardSet);
+            flashCardToAdd.setFlashCardSet(flashCardSet);
+            flashCardRepository.save(flashCardToAdd);
+        }
+    }
 }
