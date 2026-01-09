@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Học flash card</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        .scene {
+            width: 100%;
+            height: 400px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flash-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 15px;
+        }
+
+        .is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .front-face {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .back-face {
+            background-color: #e9ecef;
+            color: #212529;
+            transform: rotateY(180deg);
+            border: 1px solid #dee2e6;
+        }
+
+        .card-face::-webkit-scrollbar {
+            width: 8px;
+        }
+        .card-face::-webkit-scrollbar-thumb {
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <div th:replace="~{fragments/sidebar :: sidebar('flashcardsets')}"></div>
+
+        <div style="flex: 1" class="p-3">
+            <div th:object="${flashCardSet}" class="card border-0 mb-3">
+                <div class="card-body p-3 card bg-body-tertiary">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h4 class="fw-bold text-primary mb-2" th:text="*{name}"></h4>
+                            <div class="d-flex gap-2 align-items-center mb-2">
+                                    <span class="badge text-bg-primary text-light">
+                                        <span th:if="*{type}"><i class="bi bi-tag-fill me-1"></i> Ngữ pháp</span>
+                                        <span th:unless="*{type}"><i class="bi bi-tag-fill me-1"></i> Từ vựng</span>
+                                    </span>
+                                <span th:if="*{isPublic}" class="badge bg-success"><i class="bi bi-globe me-1"></i> Công khai</span>
+                                <span th:unless="*{isPublic}" class="badge bg-secondary"><i class="bi bi-lock-fill me-1"></i> Riêng tư</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background-color: white" class="p-2 rounded-3 mb-2" th:if="*{description != null and !#strings.isEmpty(description)}">
+                        <h6 class="fw-bold text-muted mb-1"><i class="bi bi-card-text"></i> Mô tả:</h6>
+                        <p class="m-0 text-dark" th:text="*{description}"></p>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small border-top pt-2">
+                        <span><i class="bi bi-hash"></i> ID: <span th:text="*{id}"></span></span>
+                        <span><i class="bi bi-clock-history"></i> Cập nhật: <span th:text="*{#temporals.format(modifiedDate, 'dd-MM-yyyy HH:mm')}"></span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="carouselExampleIndicators" class="carousel slide">
+                <div class="carousel-indicators">
+                    <button th:each="flashCard, iterStat : ${flashCardSet.getFlashCards()}"
+                            type="button"
+                            data-bs-target="#carouselExampleIndicators"
+                            th:data-bs-slide-to="${iterStat.index}"
+                            th:class="${iterStat.index == 0 ? 'active' : ''}"
+                            th:aria-current="${iterStat.index == 0 ? 'true' : 'false'}">
+                    </button>
+                </div>
+
+                <div class="carousel-inner">
+                    <div th:each="flashCard, iterStat : ${flashCardSet.getFlashCards()}"
+                         th:object="${flashCard}"
+                         class="carousel-item"
+                         th:classappend="${iterStat.index == 0 ? 'active' : ''}">
+
+                        <div class="scene" onclick="flipCard(this)">
+                            <div class="flash-card-inner">
+
+                                <div class="card-face front-face">
+                                    <h2 class="display-5 fw-bold" th:text="*{term}">Term</h2>
+                                    <small class="mt-3 opacity-75"><i class="bi bi-arrow-repeat"></i> Nhấn để xem nghĩa</small>
+                                </div>
+
+                                <div class="card-face back-face">
+                                    <h3 class="fw-bold text-primary mb-3" th:text="*{definition}">Definition</h3>
+
+                                    <div th:if="*{note != null and !#strings.isEmpty(note)}" class="w-100 text-start px-4 mb-2">
+                                        <hr class="my-2">
+                                        <strong class="text-danger"><i class="bi bi-sticky"></i> Ghi chú:</strong>
+                                        <p class="m-0 fst-italic" th:text="*{note}"></p>
+                                    </div>
+
+                                    <div th:if="*{example != null and !#strings.isEmpty(example)}" class="w-100 text-start px-4">
+                                        <hr class="my-2">
+                                        <strong class="text-success"><i class="bi bi-lightbulb"></i> Ví dụ:</strong>
+                                        <p class="m-0 text-muted" th:text="*{example}"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true" style="background-size: 50%;"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                    <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true" style="background-size: 50%;"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+
+            <div class="mt-3 text-center">
+                <a class="btn btn-outline-primary" th:href="@{'/flash-card-set/play/' + ${flashCardSet.id}}"><i class="bi bi-shuffle"></i> Trộn lại</a>
+                <a class="btn btn-outline-danger" th:href="@{'/flash-card-sets'}"><i class="bi bi-arrow-left"></i> Thoát</a>
+            </div>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+            <script>
+                function flipCard(element) {
+                    const innerCard = element.querySelector('.flash-card-inner');
+                    if (innerCard) {
+                        innerCard.classList.toggle('is-flipped');
+                    }
+                }
+            </script>
+        </div>
+    </div>
+</body>
+</html>

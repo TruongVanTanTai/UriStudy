@@ -120,4 +120,10 @@ public class FlashCardSetController {
         redirectAttributes.addFlashAttribute("message", "Đã cập nhật trạng thái chia sẻ bộ flash card thành công");
         return "redirect:/flash-card-sets";
     }
+
+    @GetMapping("/flash-card-set/play/{id}")
+    public String getFlashCardsToPlay(@PathVariable("id") Long id, Model model) {
+        model.addAttribute("flashCardSet", flashCardSetService.getFlashCardSetToPlay(id));
+        return "flash-card-set-play";
+    }
 }

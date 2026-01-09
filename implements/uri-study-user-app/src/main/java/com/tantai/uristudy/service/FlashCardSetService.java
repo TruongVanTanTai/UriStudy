@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -137,5 +138,14 @@ public class FlashCardSetService {
 
         flashCardSet.setIsPublic(shareStatus);
         return flashCardSetRepository.save(flashCardSet);
+    }
+
+    @PostAuthorize("hasAuthority('USER') and (authentication.principal.user.id == returnObject.user.id or returnObject.isPublic)")
+    public FlashCardSet getFlashCardSetToPlay(Long id) {
+        FlashCardSet flashCardSet = flashCardSetRepository.findById(id)
+                .orElseThrow(() -> new FlashCardSetNotFoundException("Không tồn tại bộ flash card có id:" + id));
+
+        Collections.shuffle(flashCardSet.getFlashCards());
+        return flashCardSet;
     }
 }

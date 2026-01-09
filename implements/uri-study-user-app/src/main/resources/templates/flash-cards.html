@@ -39,6 +39,7 @@
                             </div>
                         </div>
 
+                        <a th:href="@{'/flash-card-set/play/' + *{id}}">Bắt đầu học</a>
                         <div th:unless="*{isFavorite}" class="dropdown">
                             <button class="btn btn-light btn-sm rounded-circle" type="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-three-dots-vertical"></i>
