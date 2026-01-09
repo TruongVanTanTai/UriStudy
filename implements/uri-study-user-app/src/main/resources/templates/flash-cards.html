@@ -44,6 +44,8 @@
                                 <i class="bi bi-three-dots-vertical"></i>
                             </button>
                             <ul class="dropdown-menu">
+                                <li th:if="*{isPublic}"><a class="dropdown-item" th:href="@{'/flash-card-set/update-share-status/' + *{id} + '?status=0'}">Thiết lập riêng tư</a></li>
+                                <li th:unless="*{isPublic}"><a class="dropdown-item" th:href="@{'/flash-card-set/update-share-status/' + *{id} + '?status=1'}">Thiết lập công khai</a></li>
                                 <li><a class="dropdown-item" th:href="@{'/flash-card-set/edit/' + *{id}}">Chỉnh sửa thông tin</a></li>
                                 <li><a class="dropdown-item text-danger" th:href="@{'/flash-card-set/delete/' + *{id}}" onclick="return confirm('Bạn chắc chắn muốn xóa bộ flash cart này?')">Xóa</a></li>
                             </ul>

@@ -32,11 +32,18 @@
             <div style="flex: 1" class="d-flex flex-column justify-content-between" th:if="${numberOfPages > 0}">
                 <div class="d-flex flex-wrap gap-3">
                     <div th:each="flashCardSet : ${flashCardSets}" th:object="${flashCardSet}" class="card" style="width: 18rem;">
-                        <img th:if="*{image == null}" style="height: 150px; object-fit: cover" th:src="@{'/images/default-flash-card-set-image.png'}" class="card-img-top" alt="">
-                        <img th:if="*{image != null}" style="height: 150px; object-fit: cover" th:src="*{image}" class="card-img-top" alt="">
+                        <img th:if="*{image == null}" style="height: 120px; object-fit: cover" th:src="@{'/images/default-flash-card-set-image.png'}" class="card-img-top" alt="">
+                        <img th:if="*{image != null}" style="height: 120px; object-fit: cover" th:src="*{image}" class="card-img-top" alt="">
                         <div class="card-body d-flex flex-column">
                             <p th:text="*{name}" class="card-title" style="font-weight: bold"></p>
-<!--                            <p th:text="*{description}" class="card-text"></p>-->
+                            <p>
+                                <span th:if="*{isPublic}" class="badge bg-success">
+                                        <i class="bi bi-globe me-1"></i> Công khai
+                                </span>
+                                <span th:unless="*{isPublic}" class="badge bg-secondary">
+                                        <i class="bi bi-lock-fill me-1"></i> Riêng tư
+                                </span>
+                            </p>
                             <p style="color: gray; font-size: 13px" class="card-text mt-auto">
                                 <i class="bi bi-clock"></i>
                                 <span th:text="'Ngày sửa: ' + *{#temporals.format(modifiedDate, 'dd-MM-yyyy HH:mm:ss')}"></span>
@@ -49,6 +56,8 @@
                                     </a>
 
                                     <ul class="dropdown-menu">
+                                        <li th:if="*{isPublic}"><a class="dropdown-item" th:href="@{'/flash-card-set/update-share-status/' + *{id} + '?status=0'}">Thiết lập riêng tư</a></li>
+                                        <li th:unless="*{isPublic}"><a class="dropdown-item" th:href="@{'/flash-card-set/update-share-status/' + *{id} + '?status=1'}">Thiết lập công khai</a></li>
                                         <li><a class="dropdown-item" th:href="@{'/flash-card-set/edit/' + *{id}}">Chỉnh sửa thông tin</a></li>
                                         <li><a class="dropdown-item link-danger" th:href="'/flash-card-set/delete/' + *{id}" onclick="return confirm('Bạn có chắc chắn muốn xóa bộ flash card này?')">Xóa</a></li>
                                     </ul>

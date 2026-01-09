@@ -109,4 +109,15 @@ public class FlashCardSetController {
         redirectAttributes.addFlashAttribute("message", "Xóa bộ flash card thành công");
         return "redirect:/flash-card-sets";
     }
+
+    @GetMapping("/flash-card-set/update-share-status/{id}")
+    public String updateFlashCardSetShareStatus(
+            @PathVariable("id") Long id,
+            @RequestParam("status") boolean status,
+            RedirectAttributes redirectAttributes
+    ) {
+        flashCardSetService.updateShareStatus(id, status);
+        redirectAttributes.addFlashAttribute("message", "Đã cập nhật trạng thái chia sẻ bộ flash card thành công");
+        return "redirect:/flash-card-sets";
+    }
 }

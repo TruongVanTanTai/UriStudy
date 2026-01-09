@@ -129,4 +129,13 @@ public class FlashCardSetService {
     public void deleteFlashCardSet(FlashCardSet flashCardSet) {
         flashCardSetRepository.deleteByIdAndUserId(flashCardSet.getId(), flashCardSet.getUser().getId());
     }
+
+    @PreAuthorize("hasAuthority('USER') and authentication.principal.user.id == @flashCardSetService.getFlashCardSetById(#flashCardSetId).user.id")
+    public FlashCardSet updateShareStatus(Long flashCardSetId, boolean shareStatus) {
+        FlashCardSet flashCardSet = flashCardSetRepository.findById(flashCardSetId)
+                .orElseThrow(() -> new FlashCardSetNotFoundException("Không tìm thấy bộ flash card có id: " + flashCardSetId));
+
+        flashCardSet.setIsPublic(shareStatus);
+        return flashCardSetRepository.save(flashCardSet);
+    }
 }
