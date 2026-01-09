@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="d-flex">
+        <div th:replace="~{fragments/sidebar :: sidebar('flashcardsets')}"></div>
+        <div>
+            <div th:each="message : ${messages}" th:object="${message}">
+                <div th:text="*{messageType}"></div>
+                <div th:text="*{text}"></div>
+            </div>
+            <form enctype="multipart/form-data" th:action="@{/do-chat}" method="post">
+                <input id="message" name="message">
+                <input type="file" accept="image/*" name="image">
+                <span th:if="${error}" th:text="${error}"></span>
+                <button type="submit">Gửi</button>
+            </form>
+
+        </div>
+    </div>
+
+</body>
+</html>
