@@ -40,7 +40,8 @@
                         </div>
 
                         <a th:href="@{'/flash-card-set/play/' + *{id}}">Bắt đầu học</a>
-                        <div th:unless="*{isFavorite}" class="dropdown">
+                        <a th:if="${#authentication.principal.user.id != flashCardSet.user.id}" th:href="@{'/flash-card-set/copy/' + *{id}}">Sao chép thành bộ flash card cá nhân</a>
+                        <div th:if="${#authentication.principal.user.id == flashCardSet.user.id}" th:unless="*{isFavorite}" class="dropdown">
                             <button class="btn btn-light btn-sm rounded-circle" type="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-three-dots-vertical"></i>
                             </button>

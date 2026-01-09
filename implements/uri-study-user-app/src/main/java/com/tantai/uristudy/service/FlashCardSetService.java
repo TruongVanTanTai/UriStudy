@@ -2,6 +2,7 @@ package com.tantai.uristudy.service;
 
 import com.tantai.uristudy.dto.request.FlashCardSetCreationRequest;
 import com.tantai.uristudy.dto.request.FlashCardSetEditRequest;
+import com.tantai.uristudy.entity.FlashCard;
 import com.tantai.uristudy.entity.FlashCardSet;
 import com.tantai.uristudy.entity.User;
 import com.tantai.uristudy.exception.FlashCardSetNotFoundException;
@@ -11,6 +12,7 @@ import com.tantai.uristudy.infrastructure.ImageCreator;
 import com.tantai.uristudy.mapper.FlashCardSetMapper;
 import com.tantai.uristudy.repository.FlashCardSetRepository;
 import com.tantai.uristudy.repository.UserRepository;
+import com.tantai.uristudy.security.CustomUserDetails;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,12 +22,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -39,7 +45,7 @@ public class FlashCardSetService {
     @PreAuthorize("hasAuthority('USER') and authentication.principal.user.id == #userId")
     public Page<FlashCardSet> getFlashCardSetsByUserId(Long userId, int page, int size) {
         if (page <= 0) page = 1;
-        if (size <= 0)  size = 6;
+        if (size <= 0)  size = 8;
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "modifiedDate"));
         return flashCardSetRepository.findByUserId(userId, pageable);
@@ -48,7 +54,7 @@ public class FlashCardSetService {
     @PreAuthorize("hasAuthority('USER') and authentication.principal.user.id == #userId")
     public Page<FlashCardSet> getFlashCardSetsByUserIdAndType(Long userId, boolean type, int page, int size) {
         if (page <= 0) page = 1;
-        if (size <= 0) size = 6;
+        if (size <= 0) size = 8;
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "modifiedDate"));
         return flashCardSetRepository.findByUserIdAndType(userId, type, pageable);
@@ -57,7 +63,7 @@ public class FlashCardSetService {
     @PreAuthorize("hasAuthority('USER') and authentication.principal.user.id == #userId")
     public Page<FlashCardSet> getFlashCardSetsByIdAndByName(Long userId, String name, int page, int size) {
         if (page <= 0) page = 1;
-        if (size <= 0) size = 6;
+        if (size <= 0) size = 8;
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "modifiedDate"));
         return flashCardSetRepository.findByUserIdAndNameContaining(userId, name, pageable);
@@ -66,7 +72,7 @@ public class FlashCardSetService {
     @PreAuthorize("hasAuthority('USER') and authentication.principal.user.id == #userId")
     public Page<FlashCardSet> getFavoriteFlashCardSets(Long userId, int page, int size) {
         if (page <= 0) page = 1;
-        if (size <= 0) size = 6;
+        if (size <= 0) size = 8;
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "modifiedDate"));
         return flashCardSetRepository.findByUserIdAndIsFavoriteTrue(userId, pageable);
@@ -95,7 +101,8 @@ public class FlashCardSetService {
         return flashCardSetRepository.save(flashCardSet);
     }
 
-    @PostAuthorize("hasAuthority('USER') and authentication.principal.user.id == returnObject.user.id")
+    // and authentication.principal.user.id == returnObject.user.id
+    @PostAuthorize("hasAuthority('USER')")
     public FlashCardSet getFlashCardSetById(Long id) {
         return flashCardSetRepository.findById(id)
                 .orElseThrow(() -> new FlashCardSetNotFoundException("Không tìm thấy bộ flash card có id: " + id));
@@ -147,5 +154,76 @@ public class FlashCardSetService {
 
         Collections.shuffle(flashCardSet.getFlashCards());
         return flashCardSet;
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    public Page<FlashCardSet> getFlashCardSetsIsPublic(int page, int size) {
+        if (page <= 0) page = 1;
+        if (size <= 0) size = 8;
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "modifiedDate"));
+        return flashCardSetRepository.findByIsPublicTrue(pageable);
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    public Page<FlashCardSet> getFlashCardSetsByNameContainingAndIsPublicTrue(String name, int page, int size) {
+        if (page <= 0) page = 1;
+        if (size <= 0) size = 8;
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "modifiedDate"));
+        return flashCardSetRepository.findByNameContainingAndIsPublicTrue(name, pageable);
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    public Page<FlashCardSet> getFlashCardSetsByIsPublicTrueAndTypeFalse(int page, int size) {
+        if (page <= 0) page = 1;
+        if (size <= 0) size = 8;
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "modifiedDate"));
+        return flashCardSetRepository.findByIsPublicTrueAndTypeFalse(pageable);
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    public Page<FlashCardSet> getFlashCardSetsByIsPublicTrueAndTypeTrue(int page, int size) {
+        if (page <= 0) page = 1;
+        if (size <= 0) size = 8;
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "modifiedDate"));
+        return flashCardSetRepository.findByIsPublicTrueAndTypeTrue(pageable);
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    public FlashCardSet copyFlashCardSet(Long id) {
+        FlashCardSet flashCardSet = flashCardSetRepository.findByIdAndIsPublicTrue(id)
+                .orElseThrow(() -> new FlashCardSetNotFoundException("Không tìm thấy bộ flash card có id: " + id + "ở trạng thái công khai"));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = ((CustomUserDetails) authentication.getPrincipal()).getUser();
+
+        FlashCardSet newFlashCardSet = FlashCardSet.builder()
+                .name(flashCardSet.getName())
+                .type(flashCardSet.getType())
+                .modifiedDate(LocalDateTime.now())
+                .description(flashCardSet.getDescription())
+                .isFavorite(false)
+                .isPublic(false)
+                .image(flashCardSet.getImage())
+                .user(user)
+                .build();
+
+        List<FlashCard> newFlashCards = new ArrayList<>();
+        for (FlashCard flashCard : flashCardSet.getFlashCards()) {
+            newFlashCards.add(FlashCard.builder()
+                            .term(flashCard.getTerm())
+                            .definition(flashCard.getDefinition())
+                            .note(flashCard.getNote())
+                            .example(flashCard.getExample())
+                            .flashCardSet(newFlashCardSet)
+                            .build());
+        }
+
+        newFlashCardSet.setFlashCards(newFlashCards);
+
+        return flashCardSetRepository.save(newFlashCardSet);
     }
 }

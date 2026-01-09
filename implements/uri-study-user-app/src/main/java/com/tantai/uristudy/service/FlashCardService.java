@@ -30,7 +30,8 @@ public class FlashCardService {
     private final FlashCardSetService flashCardSetService;
     private final FlashCardSetRepository flashCardSetRepository;
 
-    @PreAuthorize("hasAuthority('USER') and @flashCardSetService.getFlashCardSetById(#flashCardSetId) != null")
+    // and @flashCardSetService.getFlashCardSetById(#flashCardSetId) != null
+    @PreAuthorize("hasAuthority('USER')")
     public Page<FlashCard> getFlashCardByFlashCardSetId(Long flashCardSetId, int page, int size) {
         if (page <= 0) page = 1;
         if (size <= 0) size = 10;

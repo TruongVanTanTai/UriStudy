@@ -34,20 +34,20 @@ public class FlashCardSetController {
         Long userId = customUserDetails.getUser().getId();
         Page<FlashCardSet> flashCardSets;
         if (searchKey != null) {
-            flashCardSets = flashCardSetService.getFlashCardSetsByIdAndByName(userId, searchKey, page, 6);
+            flashCardSets = flashCardSetService.getFlashCardSetsByIdAndByName(userId, searchKey, page, 8);
             model.addAttribute("searchKey", searchKey);
         }
         else if (mode.equals("all")) {
-            flashCardSets = flashCardSetService.getFlashCardSetsByUserId(userId, page, 6);
+            flashCardSets = flashCardSetService.getFlashCardSetsByUserId(userId, page, 8);
         }
         else if (mode.equals("vocabulary")) {
-            flashCardSets = flashCardSetService.getFlashCardSetsByUserIdAndType(userId, false, page, 6);
+            flashCardSets = flashCardSetService.getFlashCardSetsByUserIdAndType(userId, false, page, 8);
         }
         else if (mode.equals("grammar")) {
-            flashCardSets = flashCardSetService.getFlashCardSetsByUserIdAndType(userId, true, page, 6);
+            flashCardSets = flashCardSetService.getFlashCardSetsByUserIdAndType(userId, true, page, 8);
         }
         else {
-            flashCardSets = flashCardSetService.getFavoriteFlashCardSets(userId, page, 6);
+            flashCardSets = flashCardSetService.getFavoriteFlashCardSets(userId, page, 8);
         }
 
         model.addAttribute("mode", mode);
@@ -125,5 +125,41 @@ public class FlashCardSetController {
     public String getFlashCardsToPlay(@PathVariable("id") Long id, Model model) {
         model.addAttribute("flashCardSet", flashCardSetService.getFlashCardSetToPlay(id));
         return "flash-card-set-play";
+    }
+
+    @GetMapping("/flash-card-sets/is-public")
+    public String getFlashCardSetsIsPublic(
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "mode", defaultValue = "all") String mode,
+            @RequestParam(name = "searchKey", required = false) String searchKey,
+            Model model
+    ) {
+        Page<FlashCardSet> flashCardSets;
+        if (searchKey != null) {
+            flashCardSets = flashCardSetService.getFlashCardSetsByNameContainingAndIsPublicTrue(searchKey, page, 8);
+            model.addAttribute("searchKey", searchKey);
+        }
+        else if (mode.equals("all")) {
+            flashCardSets = flashCardSetService.getFlashCardSetsIsPublic(page, 8);
+        }
+        else if (mode.equals("vocabulary")) {
+            flashCardSets = flashCardSetService.getFlashCardSetsByIsPublicTrueAndTypeFalse(page, 8);
+        }
+        else {
+            flashCardSets = flashCardSetService.getFlashCardSetsByIsPublicTrueAndTypeTrue(page, 8);
+        }
+
+        model.addAttribute("flashCardSets", flashCardSets.getContent());
+        model.addAttribute("page", flashCardSets.getNumber() + 1);
+        model.addAttribute("totalPages", flashCardSets.getTotalPages());
+        model.addAttribute("mode", mode);
+        return "public-flash-card-sets";
+    }
+
+    @GetMapping("/flash-card-set/copy/{id}")
+    public String copyFlashCardSet(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        flashCardSetService.copyFlashCardSet(id);
+        redirectAttributes.addFlashAttribute("message", "Đã sao chép thành bộ flash card cá nhân thành công");
+        return "redirect:/flash-card-set/" + id + "/flash-cards";
     }
 }
